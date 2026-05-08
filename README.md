@@ -1,4 +1,5 @@
 **Radial Velocity Cross Correlator for LCO**
+
 This repo contains code that will recover the radial velocity results from 1D echelle spectrograph data in cases where large-sclae standard pipelines fail. The code does this though cross-correlation of the observation where the pipeline failed (observed file) against an observation where the pipeline succeeded (template file). It is particularly deswigned for use on the Las Cumbres Observatory data products, but with some modifications to the reading of the data files based on their structures, it can be applied to other 1D spectra.
 
 **Running the Code**
