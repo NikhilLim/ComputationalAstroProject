@@ -38,8 +38,8 @@ def fitGaussian(lags, ccfValues):
     guess = np.array([np.max(ccfValues), lags[np.argmax(ccfValues)], 10, np.median(ccfValues)]) # guess for A, k0, sigma
     A, k0, sigma, C = least_squares_fit(lags, ccfValues, gaussian, guess)
     return A, k0, sigma, C
-def rvError(templateFluxes, wavelengthGrid, A):
-    rMax = A / np.sum(templateFluxes**2)
+def rvError(observedFluxes, templateFluxes, wavelengthGrid, A):
+    rMax = A / np.sqrt(np.sum(observedFluxes**2) * np.sum(templateFluxes**2))
     N = wavelengthGrid.size
     lnLambda = np.log(wavelengthGrid)
     sigmaTemplate  = np.std(templateFluxes)

@@ -35,7 +35,7 @@ def main():
     lags, ccfValues = ccf.performCCF(newObsFluxes, newTempFluxes, newWavelengths)
     A, k0, sigma, C = ccf.fitGaussian(lags, ccfValues)
     rv = ccf.calculateFinalRV(k0, newWavelengths, templateRV, barycorrObs, barycorrTemp)
-    error = ccf.rvError(newTempFluxes, newWavelengths, A)
+    error = ccf.rvError(newObsFluxes, newTempFluxes, newWavelengths, A)
     print("Radial velocity: " + str(rv) + " and error: " + str(error))
 
 
