@@ -6,7 +6,7 @@ def maxLagRange(velocityMax, wavelengthGrid): #this function (taking km/s) will 
     maxWavelength = wavelengthGrid[-1]
     rvMax = 1000*velocityMax
     numerator = np.log(rvMax/c+1)
-    denominator = (np.log(maxWavelength) - np.log(minWavelength))/ (N-1)
+    denominator = (np.log(maxWavelength) - np.log(minWavelength))/ (wavelengthGrid.size-1)
     return int(numerator/denominator)
 
 def performCCF(observedFluxes, templateFluxes, wavelength):
@@ -14,10 +14,10 @@ def performCCF(observedFluxes, templateFluxes, wavelength):
     lags = np.arange(-lagRange, lagRange + 1)
     ccfValues = np.zeros(len(lags))
 
-    for j in range(N):
+    for j in range(len(observedFluxes)):
         for index, k in enumerate(lags):
             if 0 <= j-k < len(observedFluxes): #ensures array calls stay in bounds
-                ccfValues[index] += observedFluxes[j] * templateFluxes[jk]
+                ccfValues[index] += observedFluxes[j] * templateFluxes[j-k]
     return lags, ccfValues
 
 
@@ -50,7 +50,22 @@ def rvError(templateFluxes, wavelengthGrid, rMax):
         derivative[i] = (templateFluxes[i+1] - templateFluxes[i-1]) / (lnLambda[i+1] - lnLambda[i-1])
     squaredDerivative = np.mean(derivative**2)
     error = c*sigmaTemplate/np.sqrt(squaredDerivative)
-    error = error * (np.sqrt((1/N)*(1/rMax - 1)))
+    error = error * (np.sqrt((1/N)*(1/rMax**2 - 1)))
     return error
 
+def calculateFinalRV(k0, wavelengthGrid, templateRV, barycorrObs, barycorrTemp):
+    minWavelength = wavelengthGrid[0]
+    maxWavelength = wavelengthGrid[-1]
+    
+    logStep = (np.log(maxWavelength) - np.log(minWavelength)) / (wavelengthGrid.size - 1)
+    
+    rv = c * (np.exp(k0 * logStep) - 1)
+    
+    # Add template RV 
+    rv += templateRV
+    
+    # barycentric correction
+    rv += (barycorrObs - barycorrTemp)
+    
+    return rv
     
