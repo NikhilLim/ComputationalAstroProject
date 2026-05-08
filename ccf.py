@@ -32,12 +32,12 @@ def least_squares_fit(x, y, model, guess):
     res = minimize(statistic, guess)
 
     return res.x
-def gaussian(k, A, k0, sigma):
-    return A * np.exp(-((k - k0)**2) / (2 * sigma**2))
+def gaussian(k, A, k0, sigma, C):
+    return A * np.exp(-((k - k0)**2) / (2 * sigma**2)) + C
 def fitGaussian(lags, ccfValues):
-    guess = np.array([np.max(ccfValues), lags[np.argmax(ccfValues)], 10]) # guess for A, k0, sigma
-    A, k0, sigma = least_squares_fit(lags, ccfValues, gaussian, guess)
-    return A, k0, sigma
+    guess = np.array([np.max(ccfValues), lags[np.argmax(ccfValues)], 10, np.median(ccfValues)]) # guess for A, k0, sigma
+    A, k0, sigma, C = least_squares_fit(lags, ccfValues, gaussian, guess)
+    return A, k0, sigma, C
 def rvError(templateFluxes, wavelengthGrid, A):
     rMax = A / np.sum(templateFluxes**2)
     N = wavelengthGrid.size

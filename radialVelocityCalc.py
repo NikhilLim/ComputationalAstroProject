@@ -33,14 +33,14 @@ def main():
     obsWavelengths, obsFluxes, tempWavelengths, tempFluxes = dp.makeOverlap(obsWavelengths, obsFluxes, tempWavelengths, tempFluxes)
     newWavelengths, newObsFluxes, newTempFluxes = dp.interpolation(obsWavelengths, obsFluxes, tempWavelengths, tempFluxes)
     lags, ccfValues = ccf.performCCF(newObsFluxes, newTempFluxes, newWavelengths)
-    A, k0, sigma = ccf.fitGaussian(lags, ccfValues)
+    A, k0, sigma, C = ccf.fitGaussian(lags, ccfValues)
     rv = ccf.calculateFinalRV(k0, newWavelengths, templateRV, barycorrObs, barycorrTemp)
     error = ccf.rvError(newTempFluxes, newWavelengths, A)
     print("Radial velocity: " + str(rv) + " and error: " + str(error))
 
 
     plt.plot(lags, ccfValues, label='CCF')
-    plt.plot(lags, ccf.gaussian(lags, A, k0, sigma), label='Gaussian Fit', linestyle='--')
+    plt.plot(lags, ccf.gaussian(lags, A, k0, sigma, C), label='Gaussian Fit', linestyle='--')
     plt.xlabel("Pixel Lag")
     plt.ylabel("CCF")
     plt.legend()
