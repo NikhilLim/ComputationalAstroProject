@@ -35,7 +35,7 @@ def gaussian(k, A, k0, sigma):
     return A * np.exp(-((k - k0)**2) / (2 * sigma**2))
 def fitGaussian(lags, ccfValues):
     guess = np.array([np.max(ccfValues), lags[np.argmax(ccfValues)], 10]) # guess for A, k0, sigma
-     A, k0, sigma = least_squares_fit(lags, ccfValues, gaussian, guess)
+    A, k0, sigma = least_squares_fit(lags, ccfValues, gaussian, guess)
     return A, k0, sigma
 def rvError(templateFluxes, wavelengthGrid, rMax):
     N = wavelengthGrid.size

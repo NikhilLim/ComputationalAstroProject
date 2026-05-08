@@ -93,5 +93,5 @@ def interpolation(observedWavelengths, observedFluxes, templateWavelengths, temp
             break
         while i < N - 2 and templateWavelengths[i+1] < newWavelengths[j]:
             i += 1 
-        newTemplateFluxes[j] = templateFluxes[i] + (templateFluxes[i+1]-templateFluxes[i])/(templateWavelengths[i+1]-templateWavelengths[i])) * (newWavelengths[j]-templateWavelengths[i])
+        newTemplateFluxes[j] = templateFluxes[i] + ((templateFluxes[i+1]-templateFluxes[i])/(templateWavelengths[i+1]-templateWavelengths[i])) * (newWavelengths[j]-templateWavelengths[i])
     return newWavelengths, newObservedFluxes, newTemplateFluxes
