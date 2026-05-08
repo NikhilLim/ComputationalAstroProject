@@ -1,13 +1,16 @@
 import sys
 import ccf
-import data_prep
+import data_prep as dp
+import numpy as np
+from astropy.io import fits
+import matplotlib.pyplot as plt
 def getHeaderValues(observedFile, templateFile):
     hdulObserved = fits.open(observedFile)
     hdulTemplate = fits.open(templateFile)
     
-    barycorrObserved = hdulObserved[1].header['BARYCORR']
-    barycorrTemplate = hdulTemplate[1].header['BARYCORR']
-    templateRV = hdulTemplate[1].header['RV']
+    barycorrObserved = hdulObserved[0].header['BARYCORR']
+    barycorrTemplate = hdulTemplate[0].header['BARYCORR']
+    templateRV = hdulTemplate[0].header['RV']
     
     hdulObserved.close()
     hdulTemplate.close()
@@ -22,19 +25,22 @@ def main():
         sys.exit(1)
     templateFileName = sys.argv[1]
     observedFileName = sys.argv[2]
-    obsWavelengths, obsFluxes = readingAndReadyingData(observedFile)
-    tempWavelengths, tempFluxes = readingAndReadyingData(templateFile)
-    obsWavelengths, obsFluxes, tempWavelengths, tempFluxes = clipToOverlap(obsWavelengths, obsFluxes, tempWavelengths, tempFluxes)
-    newWavelengths, newObsFluxes, newTempFluxes = interpolation(obsWavelengths, obsFluxes, tempWavelengths, tempFluxes)
-    lags, ccfValues = performCCF(newObsFluxes, newTempFluxes, newWavelengths)
-    A, k0, sigma = fitGaussian(lags, ccfValues)
-    rv = calculateFinalRV(k0, newWavelengths, templateRV, barycorrObs, barycorrTemp)
-    error = rvError(newTempFluxes, newWavelengths, A)
-    print("Radial velocity: " + str(rv) + " and error: " + error)
+
+    barycorrObs, barycorrTemp, templateRV = getHeaderValues(observedFileName, templateFileName)
+    
+    obsWavelengths, obsFluxes = dp.readingAndReadyingData(observedFileName)
+    tempWavelengths, tempFluxes = dp.readingAndReadyingData(templateFileName)
+    obsWavelengths, obsFluxes, tempWavelengths, tempFluxes = dp.makeOverlap(obsWavelengths, obsFluxes, tempWavelengths, tempFluxes)
+    newWavelengths, newObsFluxes, newTempFluxes = dp.interpolation(obsWavelengths, obsFluxes, tempWavelengths, tempFluxes)
+    lags, ccfValues = ccf.performCCF(newObsFluxes, newTempFluxes, newWavelengths)
+    A, k0, sigma = ccf.fitGaussian(lags, ccfValues)
+    rv = ccf.calculateFinalRV(k0, newWavelengths, templateRV, barycorrObs, barycorrTemp)
+    error = ccf.rvError(newTempFluxes, newWavelengths, A)
+    print("Radial velocity: " + str(rv) + " and error: " + str(error))
 
 
     plt.plot(lags, ccfValues, label='CCF')
-    plt.plot(lags, gaussian(lags, A, k0, sigma), label='Gaussian Fit', linestyle='--')
+    plt.plot(lags, ccf.gaussian(lags, A, k0, sigma), label='Gaussian Fit', linestyle='--')
     plt.xlabel("Pixel Lag")
     plt.ylabel("CCF")
     plt.legend()

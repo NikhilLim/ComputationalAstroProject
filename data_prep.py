@@ -1,3 +1,5 @@
+from astropy.io import fits
+import numpy as np
 def sigmaclipping(wavelengths,fluxes , alpha, tolerance, maxIterations):
     clippedFluxes = fluxes.copy()
     clippedWavelengths = wavelengths.copy()
@@ -24,11 +26,10 @@ def readingAndReadyingData(fileAddress):
     hdul = fits.open(fileAddress)
     hdul.info()
     spec = hdul[1]
-    print(spec.columns)
+
     data = hdul[1].data
     scifiber = hdul[0].header['SCIFIBER']
-    print(scifiber)
-    fig, ax = plt.subplots(figsize=(12, 5))
+
     
     allWavelengths = []
     allNormFlux = []
@@ -47,7 +48,6 @@ def readingAndReadyingData(fileAddress):
         allNormFlux.append(fluxesOfRow)
     
     
-        np.set_printoptions(threshold=sys.maxsize)
         #print(row['blaze'])
         #ax.plot(row['wavelength'][good], (row['normflux'][good]))
     #combining and ordering everything
@@ -60,8 +60,8 @@ def readingAndReadyingData(fileAddress):
     return allWavelengths, allNormFlux
 
 def makeOverlap(observedWavelengths, observedFluxes, templateWavelengths, templateFluxes):
-    minWavelength = max(observedWavelengths[0], templateWavelength[0])
-    maxWavelength = min(observedWavelengths[-1], templateWavelength[-1])
+    minWavelength = max(observedWavelengths[0], templateWavelengths[0])
+    maxWavelength = min(observedWavelengths[-1], templateWavelengths[-1])
     observedMask = (observedWavelengths >= minWavelength) & (observedWavelengths <= maxWavelength)
     templateMask = (templateWavelengths >= minWavelength) & (templateWavelengths <= maxWavelength)
     return observedWavelengths[observedMask], observedFluxes[observedMask], templateWavelengths[templateMask], templateFluxes[templateMask]
@@ -69,7 +69,7 @@ def makeOverlap(observedWavelengths, observedFluxes, templateWavelengths, templa
 
 def interpolation(observedWavelengths, observedFluxes, templateWavelengths, templateFluxes):
     N = observedWavelengths.size
-    print(N)
+
     minWavelength = observedWavelengths[0]
     maxWavelength = observedWavelengths[-1]
     j = np.arange(N)

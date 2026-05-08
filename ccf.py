@@ -1,5 +1,6 @@
 from scipy.constants import c
 from scipy.optimize import minimize
+import numpy as np
 def maxLagRange(velocityMax, wavelengthGrid): #this function (taking km/s) will prevent the code from taking literal hours to run by limiting lag range to physically possible values.
     #basing this off equation 7 in proposal
     minWavelength = wavelengthGrid[0]
@@ -37,7 +38,8 @@ def fitGaussian(lags, ccfValues):
     guess = np.array([np.max(ccfValues), lags[np.argmax(ccfValues)], 10]) # guess for A, k0, sigma
     A, k0, sigma = least_squares_fit(lags, ccfValues, gaussian, guess)
     return A, k0, sigma
-def rvError(templateFluxes, wavelengthGrid, rMax):
+def rvError(templateFluxes, wavelengthGrid, A):
+    rMax = A / np.sum(templateFluxes**2)
     N = wavelengthGrid.size
     lnLambda = np.log(wavelengthGrid)
     sigmaTemplate  = np.std(templateFluxes)
