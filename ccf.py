@@ -14,7 +14,6 @@ def performCCF(observedFluxes, templateFluxes, wavelength):
     lagRange = maxLagRange(200,wavelength)
     lags = np.arange(-lagRange, lagRange + 1)
     ccfValues = np.zeros(len(lags))
-
     for j in range(len(observedFluxes)):
         for index, k in enumerate(lags):
             if 0 <= j-k < len(observedFluxes): #ensures array calls stay in bounds
