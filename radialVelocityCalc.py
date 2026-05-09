@@ -5,6 +5,7 @@ import numpy as np
 from astropy.io import fits
 import matplotlib.pyplot as plt
 def getHeaderValues(observedFile, templateFile):
+    #helper function that gets the barycentric corrections and template rv from the files that the user inputs
     hdulObserved = fits.open(observedFile)
     hdulTemplate = fits.open(templateFile)
     
@@ -20,9 +21,12 @@ def getHeaderValues(observedFile, templateFile):
 
 
 def main():
+    #This function basically just takes in the inputs, calls all the other functions in order, prints values and saves plot
+    
     if len(sys.argv) != 3:
         print("Wrong number of inputs")
         sys.exit(1)
+    #user inputs
     templateFileName = sys.argv[1]
     observedFileName = sys.argv[2]
 
@@ -36,9 +40,9 @@ def main():
     A, k0, sigma, C = ccf.fitGaussian(lags, ccfValues)
     rv = ccf.calculateFinalRV(k0, newWavelengths, templateRV, barycorrObs, barycorrTemp)
     error = ccf.rvError(newObsFluxes, newTempFluxes, newWavelengths, A)
-    print("Radial velocity: " + str(rv) + " and error: " + str(error))
+    print("Radial velocity: " + str(rv) + "m/s and error: " + str(error) + " m/s")
 
-
+    #making plot
     plt.plot(lags, ccfValues, label='CCF')
     plt.plot(lags, ccf.gaussian(lags, A, k0, sigma, C), label='Gaussian Fit', linestyle='--')
     plt.xlabel("Pixel Lag")
